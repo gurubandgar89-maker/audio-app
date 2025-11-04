@@ -1,25 +1,23 @@
-# Ignore Python virtual environments
+# Python virtual environments
 venv/
 env/
-__pycache__/
+backend/venv/
+backend/whisper/venv/
 
-# Ignore dependencies
+# Python cache
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Node modules for frontend
+# Node modules (frontend)
+node_modules/
 frontend/node_modules/
 frontend/dist/
 
-# Build artifacts
-*.log
-*.dll
-*.exe
+# System files
 .DS_Store
-
-# VSCode settings
+*.log
+*.exe
+*.dll
 .vscode/
-
-# Python cache folders
-**/__pycache__/
