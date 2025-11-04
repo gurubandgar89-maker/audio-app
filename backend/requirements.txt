@@ -1,2 +1,5 @@
-openai-whisper
-torch
+fastapi
+uvicorn
+python-multipart
+pydantic
+requests
