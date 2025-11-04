@@ -6,7 +6,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// --- Setup paths ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -14,73 +13,56 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- Multer setup for uploads ---
-const upload = multer({ dest: path.join(__dirname, "uploads/") });
+// ✅ Static frontend (serves the Vite build)
+const buildPath = path.join(__dirname, "../frontend/dist");
+app.use(express.static(buildPath));
 
-// --- Transcription API ---
+// ✅ File upload setup
+const upload = multer({ dest: "uploads/" });
+
+// ✅ Whisper transcription route
 app.post("/api/transcribe", upload.single("file"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
+    const filePath = req.file.path;
+    const outputDir = path.resolve("uploads");
+    const command = `python -m whisper "${filePath}" --model tiny --output_format json --output_dir uploads --word_timestamps True`;
 
-    const filePath = req.file.path; // e.g. uploads/abc123
-    const outputDir = path.join(__dirname, "uploads");
-    const baseName = path.basename(filePath);
-    const jsonPath = path.join(outputDir, `${baseName}.json`);
-
-    // --- Command for Whisper with word timestamps ---
-    const command = `python -m whisper "${filePath}" --model tiny --output_format json --output_dir "${outputDir}" --word_timestamps True`;
-
-    console.log("🟢 Running command:", command);
+    console.log("🎤 Running Whisper command:", command);
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.error("❌ Whisper Error:", stderr || error.message);
+        console.error("❌ Whisper error:", stderr || error.message);
         return res.status(500).json({ error: "Transcription failed" });
       }
 
-      // Check if Whisper generated JSON output
+      const jsonFileName = path.basename(filePath) + ".json";
+      const jsonPath = path.join(outputDir, jsonFileName);
+
       if (!fs.existsSync(jsonPath)) {
-        console.error("❌ JSON output not found:", jsonPath);
-        return res.status(500).json({ error: "No JSON output generated" });
+        console.error("❌ JSON not found at:", jsonPath);
+        return res.status(500).json({ error: "No transcription JSON created." });
       }
 
-      // Parse Whisper JSON
       const transcription = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
-
-      // Prepare structured response
-      const segments = transcription.segments.map((s) => ({
-        start: s.start,
-        end: s.end,
-        text: s.text.trim(),
-        words: s.words?.map((w) => ({
-          word: w.word.trim(),
-          start: w.start,
-          end: w.end,
-        })),
-      }));
-
-      // Respond with clean data
       res.json({
         text: transcription.text,
-        segments,
+        segments: transcription.segments.map((s) => ({
+          start: s.start,
+          text: s.text.trim(),
+        })),
       });
-
-      // Optional: delete uploaded files later to save space
-      setTimeout(() => {
-        try {
-          fs.unlinkSync(filePath);
-          fs.unlinkSync(jsonPath);
-        } catch {}
-      }, 20000);
     });
   } catch (err) {
     console.error("❌ Server error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// --- Start server ---
-const PORT = 5000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+// ✅ For all other routes (serve index.html)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(buildPath, "index.html"));
+});
+
+// ✅ Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
