@@ -1,0 +1,25 @@
+# Ignore Python virtual environments
+venv/
+env/
+__pycache__/
+
+# Ignore dependencies
+*.pyc
+*.pyo
+*.pyd
+
+# Node modules for frontend
+frontend/node_modules/
+frontend/dist/
+
+# Build artifacts
+*.log
+*.dll
+*.exe
+.DS_Store
+
+# VSCode settings
+.vscode/
+
+# Python cache folders
+**/__pycache__/
