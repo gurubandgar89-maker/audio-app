@@ -1,73 +1,85 @@
 body {
-  background-color: #222;
-  color: #fff;
-  font-family: "Segoe UI", sans-serif;
+  background-color: #1a1a1a;
+  color: white;
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh; /* Center vertically */
 }
 
-.App {
-  text-align: center;
-  background: #333;
-  padding: 30px;
-  border-radius: 15px;
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #213547;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   width: 90%;
   max-width: 800px;
 }
 
-button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  margin-left: 10px;
-  border-radius: 6px;
-  cursor: pointer;
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.output-box {
-  margin-top: 20px;
-  background-color: #ff5775;
-  color: white;
+.transcription-box {
+  background-color: #222;
   padding: 20px;
-  border-radius: 12px;
-  text-align: left;
-  overflow-wrap: break-word;
+  border-radius: 10px;
+  margin-top: 30px;
+  width: 100%;
   word-wrap: break-word;
+  overflow-wrap: break-word;
   white-space: normal;
+  box-sizing: border-box;
 }
 
-.transcript {
-  margin-top: 10px;
-  line-height: 1.6;
+.transcription-box h2 {
+  color: orange;
+  margin-bottom: 15px;
 }
 
-.transcript p {
-  margin: 8px 0;
-  display: flex;
-  flex-wrap: wrap;
-}
-
+/* Each word styling */
 .word {
-  margin: 2px;
-  display: inline-block;
   cursor: pointer;
-  transition: background 0.2s ease;
+  margin-right: 4px;
+  position: relative;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  border-radius: 4px;
+  padding: 1px 3px;
+  display: inline-block;
 }
 
 .word:hover {
-  filter: drop-shadow(0px 4px 2px rgba(0, 0, 0, 0.8));
-  transform: scale(1.05);
+  background-color: #22c55e;
+  color: black;
+  text-decoration: underline;
 }
 
-.error {
-  color: yellow;
-  font-weight: bold;
+/* Tooltip for timestamps */
+.word::after {
+  content: attr(data-timestamp);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.word:hover::after {
+  opacity: 1;
 }
